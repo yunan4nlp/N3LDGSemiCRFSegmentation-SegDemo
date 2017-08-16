@@ -5,7 +5,7 @@ include_directories(
 
 
 add_subdirectory(NNCRFSegmentor)
-add_subdirectory(NNSemiCRFSegmentor)
+#add_subdirectory(NNSemiCRFSegmentor)
 add_subdirectory(NNSemiCRFSegmentor1)
 #add_subdirectory(NNSparseCRFSegmentor)
 #add_subdirectory(WCRFSegmentor)

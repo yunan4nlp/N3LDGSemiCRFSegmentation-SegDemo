@@ -215,7 +215,7 @@ void Segmentor::convert2Example(const Instance* pInstance, Example& exam) {
 	}
 }
 
-void Segmentor::initialExamples(const vector<Instance>& vecInsts, vector<Example>& vecExams) {
+void Segmentor::initialExamples(const vector<Instance>& vecInsts, vector<Example>& vecExams, bool bFile = true) {
 	int numInstance;
 	for (numInstance = 0; numInstance < vecInsts.size(); numInstance++) {
 		const Instance *pInstance = &vecInsts[numInstance];
@@ -223,17 +223,19 @@ void Segmentor::initialExamples(const vector<Instance>& vecInsts, vector<Example
 		convert2Example(pInstance, curExam);
 		vecExams.push_back(curExam);
 
-		if ((numInstance + 1) % m_options.verboseIter == 0) {
-			cout << numInstance + 1 << " ";
-			if ((numInstance + 1) % (40 * m_options.verboseIter) == 0)
-				cout << std::endl;
-			cout.flush();
+		if (bFile) {
+			if ((numInstance + 1) % m_options.verboseIter == 0) {
+				cout << numInstance + 1 << " ";
+				if ((numInstance + 1) % (40 * m_options.verboseIter) == 0)
+					cout << std::endl;
+				cout.flush();
+			}
 		}
 		if (m_options.maxInstance > 0 && numInstance == m_options.maxInstance)
 			break;
 	}
-
-	cout << numInstance << " " << endl;
+	if(bFile)
+		cout << numInstance << " " << endl;
 }
 
 void Segmentor::train(const string& trainFile, const string& devFile, const string& testFile, const string& modelFile, const string& optionFile) {
@@ -523,31 +525,51 @@ void Segmentor::test(const string& testFile, const string& outputFile, const str
 	m_driver.directInitial();
 	m_options.seg = true;
 	vector<Instance> testInsts;
-	m_pipe.readInstances(testFile, testInsts);
 
-	vector<Example> testExamples;
-	initialExamples(testInsts, testExamples);
+	bool bFile = (testFile != "") ? true : false;
+	if (bFile) {
+		m_pipe.readInstances(testFile, testInsts);
+		vector<Example> testExamples;
+		initialExamples(testInsts, testExamples);
 
-	int testNum = testExamples.size();
-	vector<Instance> testInstResults;
-	Metric metric_test;
-	metric_test.reset();
-	for (int idx = 0; idx < testExamples.size(); idx++) {
-		vector<string> result_labels;
-		predict(testExamples[idx].m_features, result_labels);
-		if (m_options.seg)
-			testInsts[idx].SegEvaluate(result_labels, metric_test);
-		else
-			testInsts[idx].Evaluate(result_labels, metric_test);		
-		Instance curResultInst;
-		curResultInst.copyValuesFrom(testInsts[idx]);
-		curResultInst.assignLabel(result_labels);
-		testInstResults.push_back(curResultInst);
+		int testNum = testExamples.size();
+		vector<Instance> testInstResults;
+		Metric metric_test;
+		metric_test.reset();
+		for (int idx = 0; idx < testExamples.size(); idx++) {
+			vector<string> result_labels;
+			predict(testExamples[idx].m_features, result_labels);
+			if (m_options.seg)
+				testInsts[idx].SegEvaluate(result_labels, metric_test);
+			else
+				testInsts[idx].Evaluate(result_labels, metric_test);
+			Instance curResultInst;
+			curResultInst.copyValuesFrom(testInsts[idx]);
+			curResultInst.assignLabel(result_labels);
+			testInstResults.push_back(curResultInst);
+		}
+		std::cout << "test:" << std::endl;
+		metric_test.print();
+
+		m_pipe.outputAllInstances(outputFile, testInstResults);
+	} else{
+		while (1) {
+			m_pipe.readInstances(testFile, testInsts, -1, bFile);
+			vector<Example> testExamples;
+			initialExamples(testInsts, testExamples, bFile);
+			vector<Instance> testInstResults;
+			for (int idx = 0; idx < testInsts.size(); idx++) {
+				vector<string> result_labels;
+				predict(testExamples[idx].m_features, result_labels);
+				Instance curResultInst;
+				curResultInst.copyValuesFrom(testInsts[idx]);
+				curResultInst.assignLabel(result_labels);
+				testInstResults.push_back(curResultInst);
+			}
+			m_pipe.outputAllInstances(outputFile, testInstResults, false);
+			testInsts.clear();
+		}
 	}
-	std::cout << "test:" << std::endl;
-	metric_test.print();
-
-	m_pipe.outputAllInstances(outputFile, testInstResults);
 
 }
 

@@ -58,7 +58,7 @@ public:
 	void extractFeature(Feature& feat, const Instance* pInstance, int idx);
 
 	void convert2Example(const Instance* pInstance, Example& exam);
-	void initialExamples(const vector<Instance>& vecInsts, vector<Example>& vecExams);
+	void initialExamples(const vector<Instance>& vecInsts, vector<Example>& vecExams, bool bFile);
 
 public:
 	void train(const string& trainFile, const string& devFile, const string& testFile, const string& modelFile, const string& optionFile);
