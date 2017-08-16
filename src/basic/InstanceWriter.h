@@ -29,8 +29,10 @@ public:
 		} else{
 			const vector<string> &labels = pInstance->labels;
 			for (int i = 0; i < labels.size(); ++i) {
+				if (labels[i][0] == 'e')
 					*m_outf << pInstance->words[i] << " ";
-					*m_outf << labels[i];
+				else
+					*m_outf << pInstance->words[i];
 			}
 			*m_outf << endl;
 		}
