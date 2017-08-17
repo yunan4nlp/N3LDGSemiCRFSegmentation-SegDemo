@@ -42,6 +42,7 @@ public:
 				split_bychar(vecLine[i], vecInfo, ' ');
 				int veclength = vecInfo.size();
 				m_instance.labels[i] = vecInfo[veclength - 1];
+				//m_instance.words[i] = normalize_to_lowerwithdigit(vecInfo[0]);
 				m_instance.words[i] = vecInfo[0];
 				for (int j = 1; j < veclength - 1; j++) {
 					if (is_startwith(vecInfo[j], "[S]"))

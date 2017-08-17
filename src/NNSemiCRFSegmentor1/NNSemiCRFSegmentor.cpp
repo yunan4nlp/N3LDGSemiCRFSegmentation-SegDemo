@@ -57,7 +57,7 @@ int Segmentor::createAlphabet(const vector<Instance>& vecInsts) {
 			}
 			labelId = m_driver._model_params._label_alpha.from_string(labels[i]);
 
-			string curword = normalize_to_lowerwithdigit(words[i]);
+			string curword = words[i];
 			m_word_stats[curword]++;
 			for (int j = 0; j < charfeatures[i].size(); j++)
 				m_char_stats[charfeatures[i][j]]++;
@@ -102,7 +102,7 @@ int Segmentor::addTestAlpha(const vector<Instance>& vecInsts) {
 		}
 		int curInstSize = words.size();
 		for (int i = 0; i < curInstSize; ++i) {
-			string curword = normalize_to_lowerwithdigit(words[i]);
+			string curword = words[i];
 			if (!m_options.wordEmbFineTune)m_word_stats[curword]++;
 			if (!m_options.charEmbFineTune){
 				for (int j = 1; j < charfeatures[i].size(); j++){
@@ -136,7 +136,7 @@ void Segmentor::extractFeature(Feature& feat, const Instance* pInstance, int idx
 
 	const vector<string>& words = pInstance->words;
 	int sentsize = words.size();
-	string curWord = idx >= 0 && idx < sentsize ? normalize_to_lowerwithdigit(words[idx]) : nullkey;
+	string curWord = idx >= 0 && idx < sentsize ? words[idx] : nullkey;
 
 	// word features
 	feat.words.push_back(curWord);
