@@ -10,6 +10,18 @@ using namespace std;
 /*
  this class reads conll-format data (10 columns, no srl-info)
  */
+
+inline bool my_getline(istream &inf, string &line) {
+	if (!getline(inf, line))
+		return false;
+	int end = line.size() - 1;
+	while (end >= 0 && (line[end] == '\r' || line[end] == '\n')) {
+		line.erase(end--);
+	}
+
+	return true;
+}
+
 class InstanceReader : public Reader {
 public:
 	InstanceReader() {
